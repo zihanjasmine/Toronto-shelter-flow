@@ -1,12 +1,10 @@
 ---
-title: "My title"
-subtitle: "My subtitle if needed"
+title: "Monthly Toronto shelter usage in 2020"
 author: 
-  - First author
-  - Another author
-thanks: "Code and data are available at: LINK."
+  - Rohan Alexander
+thanks: "Code and data are available at: https://github.com/RohanAlexander/starter_folder-main-2."
 date: "`r format(Sys.time(), '%d %B %Y')`"
-abstract: "First sentence. Second sentence. Third sentence. Fourth sentence."
+abstract: "Shelter usage is an important factor in determining the livability of Toronto because of the large homeslessness population. We obtain monthly shelter usage in Toronto from the City on a demographic basis and analyze it using a graph. We find increased shelter usage in Winter, compared to summer and for younger age-groups compared with older ones. Our findings have implications for shelter constuction."
 output:
   bookdown::pdf_document2
 toc: FALSE
@@ -22,13 +20,52 @@ library(palmerpenguins)
 
 # Introduction
 
-You can and should cross-reference sections and sub-sections. For instance, Section \@ref(data). R Markdown automatically makes the sections lower case and adds a dash to spaces to generate labels, for instance, Section \@ref(first-discussion-point). 
+First paragraph is going to be motivational and broad. 
+
+Second paragraph is about what was done and what was found.
+
+Third paragrph about implications.
+
+The remainder of this paper is: Section \@ref(data) explains the data. Section \@ref(results) covers results...... 
 
 
 
 # Data
 
-Our data is of penguins (Figure \@ref(fig:bills)).
+Paragraph or two introducing the dataset broadly.
+
+Then show an extract of the dataset (Table \@ref(tab:dataextract)).
+
+```{r dataextract}
+library(tidyverse)
+library(knitr)
+monthly_shelter_usage <- 
+  read_csv(here::here("inputs/data/monthly_shelter_usage.csv"))
+
+monthly_shelter_usage |> 
+  select(population_group, returned_from_housing) |>
+  slice(1:10) |> 
+  kable(
+    caption = "First ten rows of a dataset that shows shelter usage",
+    col.names = c("Population group", "Number returned from housing"),
+    digits = 1,
+    booktabs = TRUE,
+    linesep = ""
+  )
+```
+
+
+Paragraph or two more about Table  \@ref(tab:dataextract).
+
+
+We are interested in the relationship between teh number of homessless who return from houseing and the return to shelter, because this is a measure of how homeless individuals are cycling between options and has implications for public policy.
+
+Figure X shows the relationship between the number of people reutrning from housing and the numebr of people returning to shelters.
+
+
+
+
+Our data is of homessless (Figure \@ref(fig:bills)).
 
 ```{r bills, fig.cap="Bills of penguins", echo = FALSE}
 ggplot(penguins, aes(x = island, fill = species)) +
