@@ -1,8 +1,8 @@
 #### Preamble ####
 # Purpose: Download data from opendatatoronto
-# Author: Rohan Alexander
+# Author: Zihan Zhang
 # Data: 26 January 2022
-# Contact: rohan.alexander@utoronto.ca
+# Contact: zhanzihan.zhang@mail.utoronto.ca
 # License: MIT
 
 
