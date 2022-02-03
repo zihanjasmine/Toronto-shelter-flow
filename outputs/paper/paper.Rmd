@@ -1,13 +1,20 @@
 ---
-title: "Monthly Toronto shelter usage in 2020"
+title: "Increasing monthly Toronto shelter flow from 2020 to 2021"
 author: 
-  - Rohan Alexander
-thanks: "Code and data are available at: https://github.com/RohanAlexander/starter_folder-main-2."
+  - Zihan Zhang
+thanks: "Code and data are available at: https://github.com/zihanjasmine/Toronto-shelter-flow."
 date: "`r format(Sys.time(), '%d %B %Y')`"
-abstract: "Shelter usage is an important factor in determining the livability of Toronto because of the large homeslessness population. We obtain monthly shelter usage in Toronto from the City on a demographic basis and analyze it using a graph. We find increased shelter usage in Winter, compared to summer and for younger age-groups compared with older ones. Our findings have implications for shelter constuction."
+abstract: "Homelessness is a symbol of failure for communities in providing fundamental security. The Toronto shelter system flow dataset being analyzed was obtained from the City of Tornot open Data Portal. We find that the number of people experiencing homelessness is increasing dramaticly from 2020 to 2021."
 output:
   bookdown::pdf_document2
 toc: FALSE
+titlepage: true
+titlepage-color: "6C3082"
+titlepage-text-color: "FFFFFF"
+titlepage-rule-color: "FFFFFF"
+titlepage-rule-height: 2
+urlcolor: blue
+linkcolor: black
 bibliography: references.bib
 ---
 
@@ -16,75 +23,274 @@ knitr::opts_chunk$set(echo = TRUE)
 
 library(tidyverse)
 library(palmerpenguins)
+
+library(opendatatoronto)
+library(janitor)
+library(knitr)
 ```
 
+
+\newpage
 # Introduction
 
-First paragraph is going to be motivational and broad. 
+  For years the federal government has made efforts to reduce the number of homeless people. For example, the federal government built shelters to protect people experiencing homelessness from extreme weather conditions and provides supplies that meet their basic needs. 
+  Reasons for homelessness include unemployment, poverty, inflation, etc. The COVID-19 pandemic may exacerbate the impact of these factors on the number of homeless people. The Toronto shelter system flow data from the City of Toronto Open Data Portal can tell us whether the government's goal of reducing homelessness has been achieved.
+  In this report, I will analyze how the number of people experiencing homelessness changes in Toronto from 2020 to 2021. Moreover, I will discuss the ethical bias in the data and the underlying implications it might cause. Last, I will discuss the limitations of our analysis. All analysis was done with an open-source statistical programming language R
 
-Second paragraph is about what was done and what was found.
 
-Third paragrph about implications.
-
-The remainder of this paper is: Section \@ref(data) explains the data. Section \@ref(results) covers results...... 
 
 
 
 # Data
 
-Paragraph or two introducing the dataset broadly. We obtain our dataset from the City of Tornot open Data Portal, using the `opendatatoronto` package [@citeopendatatoronto] and the statistical programming lnaugage R [@citeR].
+## Data source
+This paper utilizes data collected from Toronto shelter sites which uses the Shelter Management Information System (SMIS). SMIS allows staff to accommodate homeless people more efficiently,  greatly reducing the time staff spend dealing with paperwork.
 
-Then show an extract of the dataset (Table \@ref(tab:dataextract)).
+Toronto shelter system flow data was obtained from  the City of Tornot open Data Portal, using the R package: `opendatatoronto`[@citeopendatatoronto]. This dataset provides an overview of shelter's intake of homeless people every month from 2020 to 2021.   The data is ranked as sliver due to its high quality. It refreshes monthly and last refreshed on Jan 7, 2022.
 
-```{r dataextract, echo = FALSE, warning=FALSE, message = FALSE}
+
+All analyze was done with a open-source statistical programming language R [@citeR].
+
+
+
+## Data Characteristics
+
+  The Toronto shelter system flow data contains information about monthly infow and outflow of people from 2020 to 2021. Descriptive characteristics such as gender and age group are also included. 
+
+```{r,include=FALSE}
 library(tidyverse)
 library(knitr)
 monthly_shelter_usage <- 
   read_csv(here::here("inputs/data/monthly_shelter_usage.csv"))
 
-monthly_shelter_usage |> 
-  select(population_group, returned_from_housing) |>
-  slice(1:10) |> 
+
+```
+
+
+
+
+
+
+```{r, include=FALSE}
+monthly_shelter_usage_clean <-
+  clean_names(monthly_shelter_usage)
+monthly_shelter_usage_clean
+```
+
+
+
+
+
+```{r, include=FALSE}
+monthly_shelter_usage_clean <- monthly_shelter_usage_clean %>%
+  mutate(mon = substr(date_mmm_yy, 1, 3)) %>%
+  mutate(Y =substr(date_mmm_yy, 5, 6 ))
+```
+
+
+
+
+
+
+
+```{r,include=FALSE}
+monthly_shelter_usage_clean <- monthly_shelter_usage_clean %>%
+  mutate(m = case_when(mon == 'Jan' ~ 1,
+                       mon == 'Feb' ~ 2,
+                       mon == 'Mar' ~ 3,
+                       mon == 'Apr' ~ 4,
+                       mon == 'May' ~ 5,
+                       mon == 'Jun' ~ 6,
+                       mon == 'Jul' ~ 7,
+                       mon == 'Aug' ~ 8,
+                       mon == 'Sep' ~ 9,
+                       mon == 'Oct' ~ 10,
+                       mon == 'Nov' ~ 11,
+                       TRUE ~12)) %>%
+  arrange(m)
+
+
+
+monthly_shelter_usage_clean$inflow = monthly_shelter_usage_clean$returned_from_housing+
+  monthly_shelter_usage_clean$returned_to_shelter+
+  monthly_shelter_usage_clean$newly_identified 
+
+
+
+monthly_shelter_usage_clean$outflow = monthly_shelter_usage_clean$moved_to_housing +
+  monthly_shelter_usage_clean$no_recent_shelter_use
+
+
+monthly_shelter_usage_clean$net = monthly_shelter_usage_clean$inflow - monthly_shelter_usage_clean$outflow
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+Then show an extract of the dataset (Table \@ref(tab:dataextract)). 
+
+
+```{r dataextract, echo = FALSE, warning=FALSE, message = FALSE}
+library(kableExtra)
+monthly_shelter_usage_clean %>%
+  filter(population_group == 'All Population') %>%
+  select(date_mmm_yy,ageunder16, age16_24, age16_24,age25_44,age45_64,age65over )%>%
+  slice(1:24) %>%
   kable(
-    caption = "First ten rows of a dataset that shows shelter usage",
-    col.names = c("Population group", "Number returned from housing"),
+    caption = "shelter flow",
+    col.names = c("Date","age under 16","age 16-24","age 25-44","age45-64", "age 65 over"),
     digits = 1,
-    booktabs = TRUE,
-    linesep = ""
-  )
+    booktabs = TRUE, 
+    linesep = "",
+    align = c('l', 'l', 'c', 'c', 'r', 'r'),
+  ) %>%
+   add_header_above(c( " "=1, "Youth" = 1, "Working age" = 3, "Aged" =1))
+
 ```
 
 
-Paragraph or two more about Table  \@ref(tab:dataextract).
+
+  From the table, we can see that most of the homeless are young adults and middle-aged people. Aged population and youths only account for a small portion
 
 
-We are interested in the relationship between teh number of homessless who return from houseing and the return to shelter, because this is a measure of how homeless individuals are cycling between options and has implications for public policy.
-
-Figure \@ref(fig:bills) shows the relationship between the number of people reutrning from housing and the numebr of people returning to shelters.
 
 
-```{r bills, fig.cap = "Bills of penguins", echo = FALSE, warning=FALSE, message = FALSE}
-monthly_shelter_usage |>
-  ggplot(aes(x = returned_from_housing, 
-             y = returned_to_shelter,
-             color = population_group)) +
-  geom_point(alpha = 0.8) +
-  scale_colour_viridis_d()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{r graph1}
+library(ggplot2)
+graph1 <- monthly_shelter_usage_clean %>%
+  filter(population_group == 'All Population') %>%
+  ggplot(aes(x=m, y=net,color=Y)) +
+  geom_point()+
+  geom_line()+
+  labs(x="Month", y ="Net Change", title = "Monthly Net Change", color = "Year") +
+  scale_color_brewer(palette = "Set1", labels = c("2020", "2021")) +
+  scale_x_continuous(breaks =seq(1,12,1)) +
+  theme_minimal()
+graph1
+
 ```
 
-Talk more about it.
-
-Also bills and their average (Figure \@ref(fig:billssssss)). (Notice how you can change the height and width so they don't take the whole page?)
 
 
-\newpage
-
-\appendix
-
-# Appendix {-}
+  The new variable “inflow” represents the intake of people experiencing homelessness this month, which is the sum of individuals who enters shelter for the first time, individuals who didn’t use the shelter for three months and returns to shelter, and people who moved to permanent housing and returns to shelter this month. We also created “outflow”, which is the sum of individuals who moves to permanent housing and people who haven’t used the shelter for three months. Then we use “inflow” minus “outflow” and get a monthly net change of Toronto shelters. The line graph was done using the R package: `ggplot 2`. It shows how the net change in the number of people experiencing homelessness each month.
+  From the graph above, we can see that The net change in vagabonds reached its lowest point in April, then rapidly increased to a peak in July. After July, the net change in vagabonds generally showed a downward trend, although there were some fluctuations. To be more specific, the number of people leaving the shelters in the first half of 2020 is greater than the number of people entering the shelters, while in the second half of 2020, it was completely the opposite. In 2021, the net change in shelter numbers increased significantly, reaching its peak in June and then slowly declining. Overall, the number of people entering shelters in 2021 has been greater than the number leaving.
 
 
-# Additional details
+
+
+
+
+
+
+
+
+graph2
+```{r}
+monthly_shelter_usage_clean %>%
+  filter(population_group == 'All Population') %>%
+  ggplot(aes(x=m, y=actively_homeless,color=Y))+
+  geom_point() +
+  geom_line() +
+  scale_x_continuous(breaks =seq(1,12,1)) +
+  scale_color_brewer(palette = "Set1", labels = c("2020", "2021")) +
+  labs(x="Month", 
+       y ="Actively Homelessness",
+       title = "People Actively Experiencing Homelessness Each Month", 
+       color = "Year") +
+  theme_minimal()
+  
+```
+
+
+
+
+
+  From figure 2, we can see that in 2020, the number of people actively experiencing homelessness greatly decreases from January to June and fluctuates around 7500. In 2021, the number of people actively experiencing homelessness drops slightly from January to May, and increases from 7600 in May to 9200 in Decmerber.
+
+
+
+
+
+
+
+
+
+```{r}
+monthly_shelter_usage_clean %>%
+  ggplot(aes(x=population_group, y= actively_homeless)) +
+  geom_bar(stat = "identity") +
+  labs(x="Population Group",
+       y="Actively Homelessness",
+       title = "People Actively Experiencing Homelessness in Different Population Group") +
+  theme_minimal()
+```
+
+
+
+
+
+
+
+
+
+
+
+  The data divide homeless people into several categories: Indigenous , refugees, families, individuals, and children.
+From figure 3, single adults accounts for the largest share among people actively experiencing homelessness, while youth accounts for 1/10 of all.  Refugees account for about one sixth of the total.
+
+
+
+
+
+# Discussion
+
+  From tables and graphs above, we can conclude that people experiencing homelessness shrinks in 2020. However, there is an increasing trend for the number of homeless people in 2021. Moreover, most of people experiencing homelessness are in working age, which implies they have the ability to feed themselves if they want. If the government can provide some jobs and basic vocational training, some middle-aged homelessness people can support themselves, so as to reduce the pressure of the government.
+  There is ethical bias in our dataset. The data divide people into different groups including refugees and indigenous. From figure 3, we can see that refugees account for a large proportion of people experiencing homelessness. This will lead to a series of social problems, such as increased racial tension. Homelessness costs the government millions of dollars every year. When the public sees this data, people realize that homeless refugees use a lot of their tax money. There are thousands of refugees accepted in Canada every year. This can lead to conflict, with taxpayers thinking their money is being used to help refugees rather than spending more on education, healthcare, etc. There will be resistance to refugees, which exacerbates racial tensions. However, the truth is that refugees and Canadians have very little difference in taxation, unemployment, and education level. In comparison to 12.3% entrepreneurship for people born in Canada, 14.4% of refugees who have been in Canada for 1 to 3 decades are entrepreneurs. Middle-aged refugees have an unemployment rate of 9%, which is close to that of Canadian-born citizens (6 %). (UNHCR, n.d.) Refugees are narrowing the gap between income tax paid and public benefits and services received.
+  There is also some statistical bias in our data. First, only the data of shelters using the SMIS system were included in the data, and the information of shelters using other systems was not collected. Second, the Toronto shelters system flow dataset only collects information on people who have spent the night in shelters. Information on large numbers of people living outdoors is difficult to obtain.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 \newpage
@@ -92,4 +298,31 @@ Also bills and their average (Figure \@ref(fig:billssssss)). (Notice how you can
 
 # References
 
+1. R
+ R Core Team (2021). R: A language and environment for statistical computing. R
+  Foundation for Statistical Computing, Vienna, Austria. URL
+  https://www.R-project.org/.
+  
+2. ggplot2
+ H. Wickham. ggplot2: Elegant Graphics for Data Analysis. Springer-Verlag New
+  York, 2016.
+
+3. opendatatoronto
+Sharla Gelfand (2020). opendatatoronto: Access the City of Toronto Open Data
+  Portal. R package version 0.1.4.
+  https://CRAN.R-project.org/package=opendatatoronto
+
+4. janitor
+Sam Firke (2021). janitor: Simple Tools for Examining and Cleaning Dirty Data.
+  R package version 2.1.0. https://CRAN.R-project.org/package=janitor
+5. refugees in cancada
+UNHCR. (n.d.). Refugees in Canada - United Nations Refugee Agency. UNHCR Canada. https://www.unhcr.ca/in-canada/refugees-in-canada/
+
+```{r,include=FALSE}
+citation()
+citation(package = "ggplot2")
+citation(package = "opendatatoronto")
+citation(package = "tidyverse")
+citation(package = "janitor")
+```
 

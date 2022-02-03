@@ -31,3 +31,9 @@ monthly_shelter_usage <-
 
 #### Save data ####
 write_csv(monthly_shelter_usage, "inputs/data/monthly_shelter_usage.csv")
+
+
+
+
+#### Data cleaning ####
+ 
