@@ -25,26 +25,34 @@ library(knitr)
 \newpage
 # Introduction
 
-  The government takes extraordinary steps to eliminate homelessness. In the longer term, 150 modular support homes will be built for houseless people (City of Toronto, 2020). In the short term, homeless people can live in shelters, which provide food, beds, and mental health support.Reasons for homelessness include unemployment, poverty, inflation, etc. The COVID-19 pandemic may exacerbate the impact of these factors on the number of homeless people. The Toronto shelter system flow data from the City of Toronto Open Data Portal can tell us whether the government's goal of reducing homelessness has been achieved.
-  In this report, I will analyze how the number of people using the Toronto shelter system changes in Toronto from 2020 to 2021. Moreover, I will discuss the ethical bias in the data and the underlying implications it might cause. All analysis was done with an open-source statistical programming language R [@citeR].
+The government takes extraordinary steps to eliminate homelessness. In the longer term, 150 modular support homes will be built for houseless people (City of Toronto, 2020). In the short term, homeless people can live in shelters, which provide food, beds, and mental health support. Reasons for homelessness include unemployment, poverty, inflation, etc. The COVID-19 pandemic may exacerbate the impact of these factors on the number of homeless people. The Toronto shelter system flow data from the City of Toronto Open Data Portal can tell us whether the government's goal of reducing homelessness has been achieved.
+  
+In this report, I will analyze how the number of people using the Toronto shelter system changes in Toronto from 2020 to 2021. Moreover, I will discuss biases in the data and the underlying implications it might cause. 
 
-
+All analysis was done with an open-source statistical programming language R [@citeR].
 
 
 # Data
 
 ## Data source
- This paper utilizes data collected from Toronto shelter sites that use the Shelter Management Information System (SMIS). SMIS allows staff to accommodate homeless people more efficiently, greatly reducing the time staff spend dealing with paperwork.
+
+This paper utilizes data collected from Toronto shelter sites that use the Shelter Management Information System (SMIS). SMIS allows staff to accommodate homeless people more efficiently, greatly reducing the time staff spend dealing with paperwork.
 
 Toronto shelter system flow data were obtained from the City of Toronto Open Data Portal, using the R package: `opendatatoronto`[@citeopendatatoronto]. This dataset provides an overview of the shelter's intake of homeless people every month from 2020 to 2021.  The data is ranked as sliver due to its high quality. It refreshes monthly and is last refreshed on Jan 7, 2022.
 
 All analysis was done with an open-source statistical programming language R[@citeR].
+
 ## Data Characteristics
 
-  The Toronto shelter system flow data contains information about monthly inflow and outflow of people from 2020 to 2021. Descriptive characteristics such as gender and age group are also included. 
+The Toronto shelter system flow data contains information about monthly inflow and outflow of people from 2020 to 2021. Descriptive characteristics such as gender and age group are also included.
+
+
+
+
+
+
 
 ```{r,include=FALSE}
-library(tidyverse)
 library(knitr)
 monthly_shelter_usage <- 
   read_csv(here::here("inputs/data/monthly_shelter_usage.csv"))
@@ -117,7 +125,6 @@ monthly_shelter_usage_clean$net = monthly_shelter_usage_clean$inflow - monthly_s
 
 
 
-Then show an extract of the dataset (Table \@ref(tab:dataextract)). From the table, we can see that most of the homeless are young adults and middle-aged people. Aged population and youths only account for a small portion. 
 
 
 ```{r dataextract, echo = FALSE, warning=FALSE, message = FALSE}
@@ -139,7 +146,7 @@ monthly_shelter_usage_clean %>%
 ```
 
 
-
+Then show an extract of the dataset (Table \@ref(tab:dataextract)). From the table, we can see that most of the homeless are young adults and middle-aged people. The aged population and youths only account for a small portion. 
  
 
 
@@ -173,12 +180,12 @@ graph1 <- monthly_shelter_usage_clean %>%
 graph1
 
 ```
-The new variable “inflow” represents the intake of people experiencing homelessness this month, which is the sum of individuals who enters shelter for the first time, individuals who didn’t use the shelter for three months and returns to shelter, and people who moved to permanent housing and returns to shelter this month. We also created “outflow”, which is the sum of individuals who moves to permanent housing and people who haven’t used the shelter for three months. Then we use “inflow” minus “outflow” and get a monthly net change of Toronto shelters. The line graph was done using the R package: `ggplot 2`[@citeggplot2]. It shows how the net change in the number of people experiencing homelessness each month.
-
-From figure 1 \@ref(fig:figure1), we can see that The net change in vagabonds reached its lowest point in April, then rapidly increased to a peak in July. After July, the net change in vagabonds generally showed a downward trend, although there were some fluctuations. To be more specific, the number of people leaving the shelters in the first half of 2020 is greater than the number of people entering the shelters, while in the second half of 2020, it was completely the opposite. In 2021, the net change in shelter numbers increased significantly, reaching its peak in June and then slowly declining. Overall, the number of people entering shelters in 2021 has been greater than the number leaving.
 
 
-  
+
+The new variable "inflow" represents the intake of people experiencing homelessness this month, which is the sum of individuals who enters shelter for the first time, individuals who didn't use the shelter for three months and returns to the shelter, and people who moved to permanent housing and returns to shelter this month. We also created "outflow", which is the sum of individuals who moves to permanent housing and people who haven’t used the shelter for three months. Then we use "inflow" minus "outflow" and get a monthly net change of Toronto shelters. The line graph was done using the R package: `ggplot 2`[@citeggplot2]. It shows how the net change in the number of people experiencing homelessness each month.
+
+From figure 1 \@ref(fig:Figure1), we can see that The net change in vagabonds reached its lowest point in April, then rapidly increased to a peak in July. After July, the net change in vagabonds generally showed a downward trend, although there were some fluctuations. To be more specific, the number of people leaving the shelters in the first half of 2020 is greater than the number of people entering the shelters, while in the second half of 2020, it was completely the opposite. In 2021, the net change in shelter numbers increased significantly, reaching its peak in June and then slowly declining. Overall, the number of people entering shelters in 2021 has been greater than the number leaving. 
 
 
 
@@ -205,13 +212,13 @@ monthly_shelter_usage_clean %>%
 ```
 
 
+From figure \@ref(fig:Figure2), we can see that in 2020, the number of people actively experiencing homelessness greatly decreases from January to June and fluctuates around 7500. In 2021, the number of people actively experiencing homelessness drops slightly from January to May and increases from 7600 in May to 9200 in December.
 
 
 
 
 
 
-  From figure \@ref(fig:figure2), we can see that in 2020, the number of people actively experiencing homelessness greatly decreases from January to June and fluctuates around 7500. In 2021, the number of people actively experiencing homelessness drops slightly from January to May, and increases from 7600 in May to 9200 in December.
 
 
 
@@ -233,14 +240,14 @@ monthly_shelter_usage_clean %>%
 
 
 
+The data divide homeless people into several categories: Indigenous, refugees, families, individuals, and children. From figure \@ref(fig:Figure3), single adults account for the largest share among people actively experiencing homelessness, while youth accounts for 1/10 of all. Refugees account for about one-sixth of the total.
 
 
 
 
 
 
-  The data divide homeless people into several categories: Indigenous, refugees, families, individuals, and children.
-  From figure 3, single adults accounts for the largest share among people actively experiencing homelessness, while youth accounts for 1/10 of all. Refugees account for about one sixth of the total.
+ 
 
 
 
